@@ -44,7 +44,7 @@ main_menu(){
     done
 }
 
-#====== MULTI-DISTRO INSTALL REQUIREMENTS ======#
+#====== MULTI-DISTRO REQUIREMENT INSTALLER ======#
 install_requirements(){
     clear
     echo "═════ MULTI-DISTRO REQUIREMENT INSTALLER ═════"
@@ -154,6 +154,14 @@ dmi_decode_tool(){
 
 #====== SYSTEM CLEANER ======#
 system_cleaner_menu(){
+    if ! command -v whiptail >/dev/null 2>&1; then
+        clear
+        echo "Error: whiptail utility is required for the cleaner TUI."
+        echo "Please run option 10 (Install Requirements) first."
+        read -p "Press Enter to continue..."
+        return
+    fi
+
     while true; do
         clear
         CHOICE=$(whiptail --title "Linux Cleaner" \
@@ -222,6 +230,12 @@ user_menu(){
 }
 
 create_users(){
+    # Cross-distro safe handling: only use --badname if useradd supports it (Debian/Ubuntu specific)
+    local badname_flag=""
+    if useradd --help 2>&1 | grep -q "badname"; then
+        badname_flag="--badname"
+    fi
+
     while true; do
         clear
         echo "═════ CREATE USERS ═════"
@@ -232,13 +246,14 @@ create_users(){
         case $create_choice in
             1)
                 read -p "Enter username: " name
-                sudo useradd -m -s /bin/bash --badname "$name"
+                sudo useradd -m -s /bin/bash $badname_flag "$name"
                 echo "User created. Set password:"
                 sudo passwd "$name"
+                read -p "Press Enter..."
                 ;;
             2)
                 read -p "Enter username: " name
-                sudo useradd -m --badname "$name"
+                sudo useradd -m $badname_flag "$name"
                 echo "Choose shell:"
                 echo "1. bash"
                 echo "2. sh"
@@ -251,6 +266,7 @@ create_users(){
                 esac
                 echo "Set password:"
                 sudo passwd "$name"
+                read -p "Press Enter..."
                 ;;
             0) return ;;
             *) echo "Invalid option"; sleep 1 ;;
@@ -684,7 +700,7 @@ tools_menu() {
 systemd_manager_menu(){
     if ! command -v systemctl >/dev/null 2>&1; then
         clear
-        echo "Error: systemctl is not available or systemd is not running."
+        echo "Error: systemctl is not available or systemd is not running on this distribution."
         read -p "Press Enter to return..."
         return
     fi
@@ -877,7 +893,8 @@ modify_swappiness_tool() {
         
         read -p "Make this permanent? (y/n): " PERM
         if [[ "$PERM" == "y" || "$PERM" == "Y" ]]; then
-            sudo sed -i '/vm.swappiness/d' /etc/sysctl.conf
+            # Safe strategy: write to standard path which modern systemd targets fall back on
+            sudo sed -i '/vm.swappiness/d' /etc/sysctl.conf 2>/dev/null || true
             echo "vm.swappiness=$NEW_VAL" | sudo tee -a /etc/sysctl.conf >/dev/null
             echo "Permanent change applied to /etc/sysctl.conf."
         fi
