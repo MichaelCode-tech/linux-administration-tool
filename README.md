@@ -24,13 +24,13 @@ A comprehensive system administration tool designed for Linux beginners and expe
 ```bash
 git clone https://github.com/MichaelCode-tech/linux-administration-tool.git
 cd linux-administration-tool
-chmod +x linux-administration-tool.sh
+chmod +x linux-administration.sh
 ```
 
 ## Usage
 
 ```bash
-./linux-administration-tool.sh
+./linux-administration.sh
 ```
 
 Follow the on-screen menu to access different features and tools.
