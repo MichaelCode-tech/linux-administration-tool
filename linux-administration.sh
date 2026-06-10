@@ -166,28 +166,22 @@ system_cleaner_menu(){
         clear
         CHOICE=$(whiptail --title "Linux Cleaner" \
         --menu "Select what you want to clean" 15 60 5 \
-        "1" "Clean /tmp" \
-        "2" "Clean /var/tmp" \
-        "3" "Clean user cache (~/.cache)" \
-        "4" "Clean ALL" \
+        "1" "Clean /var/tmp" \
+        "2" "Clean user cache (~/.cache)" \
+        "3" "Clean ALL" \
         "0" "Return to main menu" \
         3>&1 1>&2 2>&3)
 
         case $CHOICE in
             1)
-                sudo rm -rf /tmp/* 2>/dev/null
-                whiptail --msgbox "/tmp cleaned successfully!" 10 40
-                ;;
-            2)
                 sudo rm -rf /var/tmp/* 2>/dev/null
                 whiptail --msgbox "/var/tmp cleaned successfully!" 10 40
                 ;;
-            3)
+            2)
                 rm -rf ~/.cache/* 2>/dev/null
                 whiptail --msgbox "User cache cleaned successfully!" 10 40
                 ;;
-            4)
-                sudo rm -rf /tmp/* 2>/dev/null
+            3)
                 sudo rm -rf /var/tmp/* 2>/dev/null
                 rm -rf ~/.cache/* 2>/dev/null
                 whiptail --msgbox "All temporary files cleaned!" 10 40
